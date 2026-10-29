@@ -690,6 +690,11 @@ fn osd(s: &mut Ui) {
     s.upsert(decoded(crate::integrations::samples().remove(0)));
 }
 
+/// The brightness card, as a change from outside Hokum shows it.
+fn brightness(s: &mut Ui) {
+    s.upsert(decoded(crate::integrations::brightness_note(0.55)));
+}
+
 /// A Bluetooth headset connecting, and a mouse running low.
 fn bt_connected(s: &mut Ui) {
     for n in crate::integrations::samples().into_iter().skip(1).rev() {
@@ -760,6 +765,7 @@ pub fn headless() {
             ("welcome", welcome),
             ("update", update),
             ("osd", osd),
+            ("brightness", brightness),
             ("bt-connected", bt_connected),
             ("soft", |s| bundled(s, "soft")),
             ("crisp", |s| bundled(s, "crisp")),

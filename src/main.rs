@@ -26,6 +26,7 @@
 //! and exits.
 
 mod apps;
+mod backlight;
 mod bluetooth;
 mod bus;
 mod card;

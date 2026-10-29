@@ -43,7 +43,7 @@ section and never takes notifications down.
   `bluetooth`, `bluetooth-expanded`, `bluetooth-scan`, `bluetooth-pairing`,
   `bluetooth-typing`, `bluetooth-pending`, `bluetooth-devices`,
   `bluetooth-off`, `panel` with `--size 364x440`) and `hokum service --snap
-  <png> --scene demo|osd|bt-connected` for cards.
+  <png> --scene demo|osd|brightness|bt-connected` for cards.
 - Sound and Bluetooth lay out like Notifications: the first screen in the
   same left column, the advanced page in the pane on the right where
   Notifications has its preview.
@@ -59,8 +59,10 @@ section and never takes notifications down.
   `ui/` (handlers take the window's state; `lift` adapts the section's own).
 - `src/bluetooth/`: `model.rs`, `bluez/` (the backend and the pairing agent),
   `mock.rs`, `ui/`.
-- `src/integrations.rs`: the volume card (OSD) and Bluetooth cards (connected,
-  battery low), decided from the modules' snapshots.
+- `src/integrations.rs`: the volume card (OSD), the brightness card and Bluetooth
+  cards (connected, battery low), decided from the modules' snapshots. `src/backlight.rs`
+  reads the screen's backlight from sysfs and watches it with inotify (the
+  `brightness` module has no section, only the card).
 - The rest is notifications: `bus.rs`, `cards.rs`, `card.rs`, `theme.rs`,
   `config.rs`, `update.rs`, ...
 

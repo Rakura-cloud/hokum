@@ -103,7 +103,7 @@ later, says so in its section and leaves the rest running.
 
 ### Modules
 
-Sound and Bluetooth are on unless `config.kdl` turns them off; the end of each section's
+Sound, Bluetooth and Brightness are on unless `config.kdl` turns them off; the end of each section's
 advanced pane has a button for it too. With both off there's no tray icon.
 
 ```kdl

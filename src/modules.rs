@@ -1,6 +1,7 @@
 //! The modules beside notifications, in the service: starts and stops Sound's and Bluetooth's
 //! backends as config.kdl turns them on and off (`modules { sound #true; bluetooth #true }`),
-//! hands their snapshots to the window and the tray panel, and keeps the one tray icon.
+//! hands their snapshots to the window and the tray panel, and keeps the one tray icon. The
+//! brightness module has no section: it watches the backlight and only shows a card.
 //!
 //! Each backend runs on its own threads. One that can't start, or that panics later, leaves a
 //! quiet line in its section (and nothing in the panel); notifications never notice.
@@ -26,6 +27,9 @@ pub struct Wiring {
     panel: OverlayHandle<Ui>,
     cards: OverlayHandle<crate::cards::Ui>,
     osd: Mutex<crate::integrations::Osd>,
+    brightness: Mutex<crate::integrations::Brightness>,
+    /// The backlight watch while `modules { brightness }` is on.
+    backlight: Mutex<Option<crate::backlight::Watch>>,
     devices: Mutex<crate::integrations::Devices>,
     /// `modules { osd; bluetooth-notifications }`.
     show_osd: AtomicBool,
@@ -64,6 +68,8 @@ impl Wiring {
             panel,
             cards,
             osd: Mutex::default(),
+            brightness: Mutex::default(),
+            backlight: Mutex::new(None),
             devices: Mutex::default(),
             show_osd: AtomicBool::new(true),
             show_devices: AtomicBool::new(true),
@@ -106,6 +112,7 @@ impl Wiring {
     pub fn configure(self: &Arc<Self>, ui: &mut Ui, config: &Config) {
         let m = config.loaded.modules;
         self.show_osd.store(m.osd, Ordering::Relaxed);
+        self.sync_brightness(m.brightness);
         self.show_devices
             .store(m.bluetooth_notifications, Ordering::Relaxed);
         let sound_on = ui.sound.handle.is_some() || ui.sound_error.is_some();
@@ -137,6 +144,28 @@ impl Wiring {
         self.sync_tray(m, config.loaded.behaviour.do_not_disturb);
         let c = config.clone();
         self.panel.update(move |p, _| p.configure(c));
+    }
+
+    /// The backlight watch on or off with `modules { brightness }`. Starting it again (a
+    /// config that turned it off and on) forgets the old level, so that isn't a change.
+    fn sync_brightness(self: &Arc<Self>, on: bool) {
+        let mut slot = self.backlight.lock().unwrap_or_else(|e| e.into_inner());
+        if !on {
+            *slot = None;
+        } else if slot.is_none() {
+            *self.brightness.lock().unwrap_or_else(|e| e.into_inner()) = Default::default();
+            let me = self.clone();
+            *slot = crate::backlight::watch(move |level| {
+                let card = me
+                    .brightness
+                    .lock()
+                    .unwrap_or_else(|e| e.into_inner())
+                    .see(level);
+                if let Some(n) = card {
+                    me.cards.update(move |c, _| c.upsert(n));
+                }
+            });
+        }
     }
 
     fn start_sound(self: &Arc<Self>, ui: &mut Ui) {

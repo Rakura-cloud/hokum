@@ -69,12 +69,14 @@ modules {
     sound #true      // PipeWire: output, input, apps, devices, routing
     bluetooth #false // BlueZ: devices, pairing, adapters
     osd #true        // a Volume card when the output changes outside Hokum
+    brightness #true // a Brightness card when the screen's backlight changes
     bluetooth-notifications #true // devices connecting, batteries running low
 }
 ```
 
 The end of each module's advanced pane in the window turns it off, and its empty section turns
-it back on; either writes this block.
+it back on; either writes this block. `osd`, `brightness` and `bluetooth-notifications` only
+decide which cards show, and are set here.
 
 ## Behaviour
 

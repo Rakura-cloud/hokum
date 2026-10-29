@@ -1,7 +1,8 @@
 //! What the modules tell the notifications: a volume card when the default output's volume or
-//! mute changes from outside Hokum (keys, wpctl, an app), and Bluetooth cards when a paired
-//! device connects or its battery runs low. Each watcher sees every snapshot and decides; the
-//! service shows what they return on the cards overlay (`crate::modules`).
+//! mute changes from outside Hokum (keys, wpctl, an app), a brightness card when the screen's
+//! backlight changes, and Bluetooth cards when a paired device connects or its battery runs
+//! low. Each watcher sees every snapshot and decides; the service shows what they return on the
+//! cards overlay (`crate::modules`).
 
 use std::collections::HashSet;
 use std::time::Duration;
@@ -11,6 +12,8 @@ use crate::icons::Source;
 
 /// The volume card's id: every change lands in the same card.
 pub const OSD_ID: u32 = u32::MAX / 2 + 2;
+/// The brightness card's id: every change lands in the same card.
+pub const BRIGHTNESS_ID: u32 = u32::MAX / 2 + 3;
 /// Bluetooth cards take ids from here, two per device.
 const DEVICE_IDS: u32 = u32::MAX / 2 + 16;
 const LOW: u8 = 20;
@@ -63,6 +66,45 @@ impl Osd {
             return None;
         }
         Some(osd_note(&d.description, now.1, now.2))
+    }
+}
+
+/// The brightness card at `level` (0 to 1).
+pub fn brightness_note(level: f32) -> Note {
+    let level = level.clamp(0.0, 1.0);
+    let mut n = Note::new(
+        BRIGHTNESS_ID,
+        "Brightness",
+        format!("{}%", (level * 100.0).round()),
+        "",
+    );
+    n.value = Some(level);
+    n.tag = Some("brightness".into());
+    n.hud = true;
+    n.timeout = Timeout::After(Duration::from_millis(1600));
+    n.icon_src = [
+        "display-brightness",
+        "display-brightness-symbolic",
+        "video-display",
+    ]
+    .into_iter()
+    .find_map(icon);
+    n
+}
+
+/// Watches the screen's backlight for changes.
+#[derive(Default)]
+pub struct Brightness {
+    /// The level last seen; None until the first reading.
+    last: Option<f32>,
+}
+
+impl Brightness {
+    /// The card for this reading, if the level changed. The first reading only sets the
+    /// baseline, so Hokum starting doesn't flash a card.
+    pub fn see(&mut self, level: f32) -> Option<Note> {
+        let before = self.last.replace(level)?;
+        ((before - level).abs() >= 0.004).then(|| brightness_note(level))
     }
 }
 
@@ -212,6 +254,22 @@ mod tests {
             osd.see(&s, false).is_none(),
             "a device switch isn't a volume change"
         );
+    }
+
+    #[test]
+    fn the_brightness_card_follows_changes_only() {
+        let mut b = Brightness::default();
+        assert!(b.see(0.5).is_none(), "not at startup");
+        assert!(b.see(0.5).is_none(), "nothing changed");
+        assert!(b.see(0.501).is_none(), "less than a step");
+        let n = b.see(0.55).expect("a card");
+        assert_eq!(
+            (n.id, n.app.as_str(), n.summary.as_str()),
+            (BRIGHTNESS_ID, "Brightness", "55%")
+        );
+        assert!((n.value.unwrap() - 0.55).abs() < 0.001 && n.hud);
+        assert_eq!(b.see(0.0).unwrap().summary, "0%");
+        assert_eq!(brightness_note(1.4).summary, "100%", "never past full");
     }
 
     #[test]
