@@ -254,9 +254,10 @@ const installs: { id: string; label: string; x64: string; arm64?: string; link?:
   { id: "arch", label: "arch", x64: tabCode("arch"), link: `<a href="https://aur.archlinux.org/packages/hokum-bin" rel="noopener">aur ↗</a>` },
   { id: "debian", label: "debian", x64: tabCode("debian") },
   { id: "fedora", label: "fedora", x64: tabCode("fedora") },
+  { id: "nix", label: "nix", x64: "nix run github:anomalyco/hokum", link: `<a href="${repo}#install" rel="noopener">nixos ↗</a>` },
   { id: "binary", label: "other", x64: `curl -fLo ${binPath} ${release}/linux-x64 && chmod +x ${binPath}`, link: `<a href="${repo}/releases" rel="noopener">releases ↗</a>` },
 ]
-for (const i of installs) if (i.id !== "arch") i.arm64 = i.x64.replace(/linux-x64/g, "linux-arm64")
+for (const i of installs) if (i.id !== "arch" && i.id !== "nix") i.arm64 = i.x64.replace(/linux-x64/g, "linux-arm64")
 const copyIcon = `<svg class="i-copy" viewBox="0 0 16 16" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 3.5v-.2c0-1-.8-1.8-1.8-1.8H3.3c-1 0-1.8.8-1.8 1.8v5.4c0 1 .8 1.8 1.8 1.8h.2" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><svg class="i-done" viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 8.5 3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
 const cmd = (code: string, cls: string) =>
   `<span class="inst-cmd ${cls}"><code>${escape(code)}</code><button type="button" class="inst-copy" data-copy="${escape(code)}" aria-label="Copy command">${copyIcon}</button></span>`

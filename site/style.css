@@ -134,14 +134,16 @@ h1, h2, h3 { text-wrap: balance; font-weight: 400; }
 .inst-tabs label { padding-bottom: 5px; border-bottom: 1px solid transparent; cursor: pointer; color: var(--fg); opacity: 0.38; transition: opacity 0.15s; }
 .inst-tabs label:hover { opacity: 0.8; }
 #p-arch:checked ~ .inst-tabs [for="p-arch"], #p-debian:checked ~ .inst-tabs [for="p-debian"],
-#p-fedora:checked ~ .inst-tabs [for="p-fedora"], #p-binary:checked ~ .inst-tabs [for="p-binary"] { opacity: 1; border-bottom-color: var(--fg); }
+#p-fedora:checked ~ .inst-tabs [for="p-fedora"], #p-nix:checked ~ .inst-tabs [for="p-nix"],
+#p-binary:checked ~ .inst-tabs [for="p-binary"] { opacity: 1; border-bottom-color: var(--fg); }
 /* Keyboard focus on a tab shows on that tab only, quietly. */
 .inst .sr:focus-visible ~ .inst-tabs { outline: none; }
 #p-arch:focus-visible ~ .inst-tabs [for="p-arch"], #p-debian:focus-visible ~ .inst-tabs [for="p-debian"],
-#p-fedora:focus-visible ~ .inst-tabs [for="p-fedora"], #p-binary:focus-visible ~ .inst-tabs [for="p-binary"],
+#p-fedora:focus-visible ~ .inst-tabs [for="p-fedora"], #p-nix:focus-visible ~ .inst-tabs [for="p-nix"],
+#p-binary:focus-visible ~ .inst-tabs [for="p-binary"],
 #arm:focus-visible ~ .inst-line .cpu { outline: 1px dotted rgb(255 255 255 / 0.45); outline-offset: 4px; }
 .inst-line { display: none; align-items: center; gap: 12px; padding: 12px 12px 12px 16px; border: 1px solid #1c1c1c; border-radius: 8px; color: var(--fg); }
-#p-arch:checked ~ #panel-arch, #p-debian:checked ~ #panel-debian, #p-fedora:checked ~ #panel-fedora, #p-binary:checked ~ #panel-binary { display: flex; }
+#p-arch:checked ~ #panel-arch, #p-debian:checked ~ #panel-debian, #p-fedora:checked ~ #panel-fedora, #p-nix:checked ~ #panel-nix, #p-binary:checked ~ #panel-binary { display: flex; }
 .inst-p { flex: none; color: var(--faint); }
 .inst-cmd { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 0; }
 .inst-cmd code { min-width: 0; overflow-x: auto; white-space: nowrap; scrollbar-width: none; font-size: 15px; color: var(--fg); -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); padding-right: 28px; }

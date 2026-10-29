@@ -1,7 +1,7 @@
 // The page around the hero: the platform guess and copy buttons.
 
 // Which install to show first. Browsers rarely say the distribution; when they do, use it.
-// `?platform=arch|debian|fedora|binary` overrides.
+// `?platform=arch|debian|fedora|nix|binary` overrides.
 const ua = navigator.userAgent
 const forced = new URLSearchParams(location.search).get("platform")
 const guess = forced || (/Ubuntu|Debian|Mint|Pop!_OS/i.test(ua) ? "debian" : /Fedora|SUSE|Red Hat|CentOS/i.test(ua) ? "fedora" : "arch")

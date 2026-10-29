@@ -39,6 +39,16 @@ curl -fLo /tmp/hokum.rpm https://anoma.ly/release/hokum/desktop/stable/linux-x64
 sudo dnf install /tmp/hokum.rpm
 ```
 
+With Nix, try it with `nix run github:anomalyco/hokum`. On NixOS, add the flake as an input
+and install it so D-Bus activation and the user unit find it:
+
+```nix
+# hokum = inputs.hokum.packages.${pkgs.stdenv.hostPlatform.system}.default;
+environment.systemPackages = [ hokum ];
+services.dbus.packages = [ hokum ];
+systemd.packages = [ hokum ];
+```
+
 Or download the `hokum` executable from [Releases](https://github.com/anomalyco/hokum/releases)
 and install it on your `PATH` together with the systemd unit, D-Bus activation file and launcher
 entry from [`packaging/`](packaging). Development builds of `dev` are on the
